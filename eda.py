@@ -71,21 +71,21 @@ def clean_data_pandas(df):
     return df
 
 def visualize_data_pandas(df):
-    """Pandas ile veri görselleştirmelerini yapar, görselleri kaydeder"""
+    """Creates data visualizations with Pandas and saves the images"""
     sns.set(style='whitegrid')
     
-    # 1. Grafik: Satış Tutarı Dağılımı (Log Scale)
+    # 1. Chart: Sales Amount Distribution (Log Scale)
     plt.figure(figsize=(12, 8))
     sns.histplot(df['Amount'], bins=50, kde=True, color="teal", log_scale=True)
-    plt.title("Satış Tutarı Dağılımı (Logaritmik Ölçek)", fontsize=16, fontweight='bold')
-    plt.xlabel("Satış Tutarı", fontsize=14)
-    plt.ylabel("Frekans", fontsize=14)
+    plt.title("Sales Amount Distribution (Logarithmic Scale)", fontsize=16, fontweight='bold')
+    plt.xlabel("Sales Amount", fontsize=14)
+    plt.ylabel("Frequency", fontsize=14)
     mean_amount = df['Amount'].mean()
     median_amount = df['Amount'].median()
-    plt.axvline(mean_amount, color='red', linestyle='--', linewidth=2, label=f'Ortalama: {mean_amount:.2f}')
-    plt.axvline(median_amount, color='green', linestyle='-.', linewidth=2, label=f'Medyan: {median_amount:.2f}')
+    plt.axvline(mean_amount, color='red', linestyle='--', linewidth=2, label=f'Mean: {mean_amount:.2f}')
+    plt.axvline(median_amount, color='green', linestyle='-.', linewidth=2, label=f'Median: {median_amount:.2f}')
     plt.text(0.7, 0.9, 
-             f"Toplam Satış: {len(df):,}\nMin: {df['Amount'].min():.2f}\nMax: {df['Amount'].max():.2f}\nStd: {df['Amount'].std():.2f}", 
+             f"Total Sales: {len(df):,}\nMin: {df['Amount'].min():.2f}\nMax: {df['Amount'].max():.2f}\nStd: {df['Amount'].std():.2f}", 
              transform=plt.gca().transAxes, bbox=dict(facecolor='white', alpha=0.8))
     plt.grid(True, alpha=0.3, linestyle='--')
     plt.legend()
@@ -93,15 +93,15 @@ def visualize_data_pandas(df):
     plt.savefig("sales_distribution.png")
     plt.show()
     
-    # 2. Grafik: En Çok Satılan Ürün Kategorileri (Top 10)
+    # 2. Chart: Most Sold Product Categories (Top 10)
     plt.figure(figsize=(12, 8))
     top_categories = df['Product_Category'].value_counts().head(10)
     total_sales = len(df)
     colors = plt.cm.viridis(np.linspace(0.2, 0.8, len(top_categories)))
     top_categories.plot(kind='barh', color=colors, edgecolor='black', linewidth=1)
-    plt.title("En Çok Satılan Ürün Kategorileri (Top 10)", fontsize=16, fontweight='bold')
-    plt.xlabel("Satış Sayısı", fontsize=14)
-    plt.ylabel("Kategori", fontsize=14)
+    plt.title("Most Sold Product Categories (Top 10)", fontsize=16, fontweight='bold')
+    plt.xlabel("Number of Sales", fontsize=14)
+    plt.ylabel("Category", fontsize=14)
     for i, (value, category) in enumerate(zip(top_categories, top_categories.index)):
         percentage = (value / total_sales) * 100
         plt.text(value + 5, i, f"{value:,} ({percentage:.1f}%)", va='center', fontweight='bold')
@@ -111,30 +111,30 @@ def visualize_data_pandas(df):
     plt.savefig("top_categories.png")
     plt.show()
     
-    # 3. Grafik: Aylık Satış Trendleri
+    # 3. Chart: Monthly Sales Trends
     month_names = {1: 'January', 2: 'February', 3: 'March', 4: 'April', 5: 'May', 6: 'June', 
                    7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November', 12: 'December'}
-    # "Month" sütunu yeniden oluşturuluyor
+    # Recreating "Month" column
     df['Month'] = df['Date'].dt.month
     monthly_sales = df.groupby('Month')['Amount'].sum()
     monthly_transactions = df.groupby('Month').size()
     monthly_avg_sale = monthly_sales / monthly_transactions
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10), gridspec_kw={'height_ratios': [2, 1]})
-    fig.suptitle("Aylık Satış Trendleri ve Analizi", fontsize=18, fontweight='bold', y=0.98)
+    fig.suptitle("Monthly Sales Trends and Analysis", fontsize=18, fontweight='bold', y=0.98)
     
-    # Üst grafik: Toplam Satışlar
+    # Upper chart: Total Sales
     ax1.plot(monthly_sales.index, monthly_sales, marker='o', markersize=8, linestyle='-', 
-             linewidth=2, color='#FF5733', label="Toplam Satışlar")
+             linewidth=2, color='#FF5733', label="Total Sales")
     ax1.plot(monthly_sales.index, monthly_sales.rolling(2).mean(), linestyle="--", 
-             linewidth=2, color="#3498DB", label="Hareketli Ortalama (2 Ay)")
+             linewidth=2, color="#3498DB", label="Moving Average (2 Months)")
     max_month = monthly_sales.idxmax()
     min_month = monthly_sales.idxmin()
-    ax1.plot(max_month, monthly_sales[max_month], 'go', markersize=12, label=f"En Yüksek: {month_names[max_month]}")
-    ax1.plot(min_month, monthly_sales[min_month], 'ro', markersize=12, label=f"En Düşük: {month_names[min_month]}")
-    ax1.set_title("Aylık Toplam Satış Tutarı", fontsize=14, pad=10)
-    ax1.set_xlabel("Ay", fontsize=12)
-    ax1.set_ylabel("Toplam Satış Tutarı (₺)", fontsize=12)
+    ax1.plot(max_month, monthly_sales[max_month], 'go', markersize=12, label=f"Highest: {month_names[max_month]}")
+    ax1.plot(min_month, monthly_sales[min_month], 'ro', markersize=12, label=f"Lowest: {month_names[min_month]}")
+    ax1.set_title("Monthly Total Sales Amount", fontsize=14, pad=10)
+    ax1.set_xlabel("Month", fontsize=12)
+    ax1.set_ylabel("Total Sales Amount (₺)", fontsize=12)
     ax1.set_xticks(monthly_sales.index)
     ax1.set_xticklabels([month_names[m] for m in monthly_sales.index], rotation=45)
     ax1.grid(True, alpha=0.3, linestyle='--')
@@ -142,18 +142,18 @@ def visualize_data_pandas(df):
     for i, val in enumerate(monthly_sales):
         ax1.annotate(f"{val:,.0f}", (monthly_sales.index[i], val), textcoords="offset points", xytext=(0,10), ha='center')
     
-    # Alt grafik: İşlem Sayısı ve Ortalama Satış
+    # Lower chart: Transaction Count and Average Sale
     color = '#2ECC71'
-    ax2.bar(monthly_transactions.index, monthly_transactions, alpha=0.7, color=color, label="İşlem Sayısı")
-    ax2.set_xlabel("Ay", fontsize=12)
-    ax2.set_ylabel("İşlem Sayısı", fontsize=12, color=color)
+    ax2.bar(monthly_transactions.index, monthly_transactions, alpha=0.7, color=color, label="Transaction Count")
+    ax2.set_xlabel("Month", fontsize=12)
+    ax2.set_ylabel("Transaction Count", fontsize=12, color=color)
     ax2.set_xticks(monthly_transactions.index)
     ax2.set_xticklabels([month_names[m] for m in monthly_transactions.index], rotation=45)
     ax2.tick_params(axis='y', labelcolor=color)
     ax3 = ax2.twinx()
     ax3.plot(monthly_avg_sale.index, monthly_avg_sale, marker='s', markersize=6, 
-             linestyle='-', linewidth=2, color='#9B59B6', label="Ortalama Satış Tutarı")
-    ax3.set_ylabel("Ortalama Satış Tutarı (₺)", fontsize=12, color='#9B59B6')
+             linestyle='-', linewidth=2, color='#9B59B6', label="Average Sale Amount")
+    ax3.set_ylabel("Average Sale Amount (₺)", fontsize=12, color='#9B59B6')
     ax3.tick_params(axis='y', labelcolor='#9B59B6')
     lines1, labels1 = ax2.get_legend_handles_labels()
     lines2, labels2 = ax3.get_legend_handles_labels()
@@ -164,12 +164,12 @@ def visualize_data_pandas(df):
     slow_season = ', '.join([month_names[i] for i in monthly_sales.nsmallest(3).index])
     
     analysis_text = (
-        f"Analiz Özeti:\n"
-        f"• Büyüme Oranı: {growth_rate:.1f}% (ilk aydan son aya)\n"
-        f"• Yüksek Sezon: {peak_season}\n"
-        f"• Düşük Sezon: {slow_season}\n"
-        f"• En Yüksek Satış: {monthly_sales.max():,.0f}₺ ({month_names[max_month]})\n"
-        f"• En Düşük Satış: {monthly_sales.min():,.0f}₺ ({month_names[min_month]})"
+        f"Analysis Summary:\n"
+        f"• Growth Rate: {growth_rate:.1f}% (first to last month)\n"
+        f"• Peak Season: {peak_season}\n"
+        f"• Slow Season: {slow_season}\n"
+        f"• Highest Sales: {monthly_sales.max():,.0f}₺ ({month_names[max_month]})\n"
+        f"• Lowest Sales: {monthly_sales.min():,.0f}₺ ({month_names[min_month]})"
     )
     fig.text(0.12, 0.01, analysis_text, fontsize=11, bbox=dict(facecolor='white', alpha=0.8))
     plt.tight_layout()
@@ -177,14 +177,14 @@ def visualize_data_pandas(df):
     plt.savefig("monthly_sales_trend.png")
     plt.show()
     
-    # 4. Grafik: Gelir Seviyesi vs Satın Alma Tutarı (Boxplot + İstatistik Tablosu)
+    # 4. Chart: Income Level vs Purchase Amount (Boxplot + Statistics Table)
     plt.figure(figsize=(14, 10))
     ax = sns.boxplot(x=df['Income'], y=df['Amount'], palette="viridis", width=0.6, 
                      linewidth=1.5, fliersize=4, showmeans=True,
                      meanprops={"marker": "o", "markerfacecolor": "white", "markeredgecolor": "black", "markersize": 8})
-    plt.title("Gelir Seviyesi ve Satın Alma Tutarı İlişkisi", fontsize=16, fontweight='bold', pad=15)
-    plt.xlabel("Müşteri Gelir Seviyesi", fontsize=14, labelpad=10)
-    plt.ylabel("Satın Alma Tutarı (₺)", fontsize=14, labelpad=10)
+    plt.title("Relationship Between Income Level and Purchase Amount", fontsize=16, fontweight='bold', pad=15)
+    plt.xlabel("Customer Income Level", fontsize=14, labelpad=10)
+    plt.ylabel("Purchase Amount (₺)", fontsize=14, labelpad=10)
     plt.xticks(rotation=45, ha='right')
     plt.grid(axis='y', linestyle='--', alpha=0.7)
     income_stats = df.groupby('Income')['Amount'].agg(['mean', 'median', 'std', 'count']).reset_index()
@@ -192,7 +192,7 @@ def visualize_data_pandas(df):
     for _, row in income_stats.iterrows():
         table_data.append([row['Income'], f"{row['mean']:.2f}", f"{row['median']:.2f}", f"{row['std']:.2f}", f"{row['count']}"])
     table = plt.table(cellText=table_data,
-                      colLabels=['Gelir Seviyesi', 'Ortalama', 'Medyan', 'Std. Sapma', 'İşlem Sayısı'],
+                      colLabels=['Income Level', 'Mean', 'Median', 'Std. Deviation', 'Transaction Count'],
                       cellLoc='center',
                       loc='bottom',
                       bbox=[0, -0.45, 1, 0.25])
@@ -200,9 +200,9 @@ def visualize_data_pandas(df):
     table.set_fontsize(10)
     table.scale(1, 1.5)
     plt.figtext(0.02, 0.02, 
-                "Analiz Notları:\n• Gelir seviyesi arttıkça satın alma tutarı genellikle artış göstermektedir.\n"
-                "• Yüksek gelirli müşterilerde satın alma tutarı dağılımı daha geniştir, bu da daha çeşitli alışveriş davranışlarını gösterir.\n"
-                "• Orta gelirli müşterilerde aykırı değerler daha fazla olabilir.",
+                "Analysis Notes:\n• Purchase amount generally increases with income level.\n"
+                "• Higher income customers show a wider distribution of purchase amounts, indicating more diverse shopping behaviors.\n"
+                "• Middle income customers may have more outliers.",
                 fontsize=11, wrap=True, bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
     plt.tight_layout()
     plt.subplots_adjust(bottom=0.45)
