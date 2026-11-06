@@ -14,7 +14,7 @@ from pymongo import MongoClient
 from pymongo.errors import ServerSelectionTimeoutError
 
 # MongoDB connection string - with added parameters
-MONGO_URI = "mongodb+srv://USER:PASSWORD@HOST/DATABASE"
+MONGO_URI = os.environ["MONGO_URI"]
 
 def initialize_spark():
     """Initialize Spark session with MongoDB connector"""

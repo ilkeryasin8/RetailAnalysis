@@ -9,6 +9,8 @@ and presents the results in a more readable format both visually and in the cons
 Additionally, a sample of the data is saved to CSV.
 """
 
+import os
+
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, count, sum, avg, round, month
 from tabulate import tabulate  # pip install tabulate
@@ -21,7 +23,7 @@ def initialize_spark():
         .config("spark.driver.memory", "8g") \
         .config("spark.executor.memory", "8g") \
         .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.2") \
-        .config("spark.mongodb.input.uri", "mongodb+srv://USER:PASSWORD@HOST/DATABASE") \
+        .config("spark.mongodb.input.uri", os.environ["MONGO_URI"]) \
         .getOrCreate()
     return spark
 
